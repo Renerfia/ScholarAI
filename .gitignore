@@ -1,0 +1,6 @@
+.env
+test.ipynb
+.venv
+__pycache__
+embeddings.json
+extracted_texts.json
