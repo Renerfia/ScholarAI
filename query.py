@@ -8,6 +8,7 @@ def query(question,history):
     API_KEY = os.getenv("GEMINI_API_KEY")
     client_db = chromadb.PersistentClient(path="data\\vector_db")
     collection = client_db.get_or_create_collection("notes")
+    model = "gemini-2.5-flash-lite"
 
     client_ai = genai.Client(api_key=API_KEY)
 
@@ -28,23 +29,28 @@ def query(question,history):
     print(query_results)
 
     retrieved_texts =f"\n\n".join(query_results['documents'][0]) #retrieves the documents from the query results
+    try:
+        final_response = client_ai.models.generate_content(
+            model=model,
+            contents=f"""
+                Answer the question based on the notes below.
+                your main work is to find question in the notes and send to the user if asked.
+                also solve them if asked.
+                Format any math equations in LaTeX.
+                Always speak in Bangla
 
-    final_response = client_ai.models.generate_content(
-        model="gemini-3.1-flash-lite-preview",
-        contents=f"""
-            Answer the question based on the notes below.
-            your main work is to find question in the notes and send to the user if asked.
-            also solve them if asked.
-            Format any math equations in LaTeX.
+                Notes:{retrieved_texts}
 
-            Notes:{retrieved_texts}
+                History of previous questions and answers:
+                {history}
 
-            History of previous questions and answers:
-            {history}
+                User Question: {question}
+            """
+        )
+        return final_response.text
 
-            User Question: {question}
-        """
-    )
-    return final_response.text
-
-    print("Final Answer:",final_response.text)
+    
+    except Exception as e:
+        if "503" in str(e) or "UNAVAILABLE" in str(e):
+            import time
+            time.sleep(10) #wait for 5 seconds before retrying

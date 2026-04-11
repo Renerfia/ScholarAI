@@ -1,16 +1,22 @@
 from dotenv import load_dotenv
 import os
-import google.genai as genai
+import openai
+import base64
 import json
-
-
+import time
 
 def extractor():
     load_dotenv()
-    API_KEY = os.getenv("GEMINI_API_KEY")
+    API_KEY = os.getenv("OPENROUTER_API_KEY")
 
+    client = openai.OpenAI(
+        api_key=API_KEY,
+        base_url="https://openrouter.ai/api/v1"
+    )
+
+    model = "openrouter/auto"
     folder_path = "data\\processed_images"
-    client = genai.Client(api_key=API_KEY)
+
     image_files = [
         f for f in os.listdir(folder_path)
         if f.endswith(".jpg") or f.endswith(".png") or f.endswith(".jpeg")
@@ -22,36 +28,42 @@ def extractor():
         full_path = os.path.join(folder_path, image_name)
         print(full_path)
 
-
-
-
-
         with open(full_path, "rb") as f:
-            image_data = f.read()
+            image_data = base64.b64encode(f.read()).decode("utf-8")
 
-        response = client.models.generate_content(
-            model="gemini-3.1-flash-lite-preview",
-            contents=[
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
                 {
-                    "parts": [
+                    "role": "user",
+                    "content": [
                         {
-                            "inline_data": {
-                                "mime_type": "image/jpeg",
-                                "data": image_data
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_data}"
                             }
                         },
                         {
+                            "type": "text",
                             "text": "Extract all the text from this image exactly as it appears."
                         }
                     ]
                 }
             ]
         )
-        extracted_texts[image_name] = response.text
+
+        extracted_texts[image_name] = response.choices[0].message.content
         print(f"Image: {image_name}")
-        print(response.text)
+        print(response.choices[0].message.content)
         print("---")
-    print("Extraction is complete.")
+        time.sleep(1)
+
+    print("Extraction complete.")
+
+    with open("extracted_texts.json", "w", encoding="utf-8") as f:
+        json.dump(extracted_texts, f, ensure_ascii=False, indent=2)
+
+    print("Saved to extracted_texts.json")
 
 
 

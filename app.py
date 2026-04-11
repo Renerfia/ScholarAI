@@ -30,8 +30,8 @@ for item in reversed(st.session_state["history"]):
 
 #sidebar
 with st.sidebar:
-    st.title("Extract Text from PDF")
-    folder_path = st.file_uploader("Upload a folder of PDFs:", type=["pdf"]) #streamlit doesn't support folder upload, so we will use file uploader for now. User can upload one pdf at a time.
+    st.title("Train AI from your PDF Notes")
+    folder_path = st.text_input("Enter the path to your PDF file:") #streamlit doesn't support folder upload, so we will use file uploader for now. User can upload one pdf at a time.
     subject = st.text_input("Enter the subject of your notes (e.g. Math, Physics):(It's crucial!)")
     if st.button("Extract"):
         if folder_path is not None:

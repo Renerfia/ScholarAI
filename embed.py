@@ -11,6 +11,7 @@ def embed():
     import time
     API_KEY = os.getenv("GEMINI_API_KEY")
     client = genai.Client(api_key=API_KEY)
+    
 
     with open("extracted_texts.json", "r", encoding="utf-8") as f:
         extracted_texts = json.load(f)
@@ -25,7 +26,7 @@ def embed():
         
         embeddings[image_name] = response.embeddings[0].values
         print(f"Embedded: {image_name}")
-        time.sleep(1)
+        time.sleep(4)
         #save the embeddings to a json file
         with open("embeddings.json", "w", encoding="utf-8") as f:
             json.dump(
