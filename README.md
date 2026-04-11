@@ -107,9 +107,6 @@ streamlit run app.py
 ---
 
 ## 📁 Project Structure
-
-```
-
 When you click the "Extract" button, the program captures every image from every page of the PDF file and sends them to the AI model. This process occurs gradually.
 
 Next, the AI model analyzes the images and generates a detailed description of each page's content. After that, these text descriptions are converted into vectors and stored in a vector database located in the data folder (within the app's local directory).
@@ -118,6 +115,7 @@ When you ask a question, the program converts your query into a vector and ident
 
 Finally, the program sends the retrieved_text, your original question, and the conversation history to the main Gemini Model. The model analyzes this context and provides an accurate answer.
 
+```
 
 
 ai-pdf-review-assistant/
