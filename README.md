@@ -20,6 +20,8 @@ Ask in **Bengali or English**. Get answers with **full LaTeX math rendering**. I
 
 ---
 
+![Project Preview](./thumbnail_images/image.png)
+
 ## ⚔️ The Pipeline — How It Works
 
 ```
