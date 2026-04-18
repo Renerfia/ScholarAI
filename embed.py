@@ -6,7 +6,6 @@ def embed():
     import os
     load_dotenv()
 
-    import google.genai as genai
     import json
     import time
     API_KEY = os.getenv("GEMINI_API_KEY")
@@ -27,13 +26,14 @@ def embed():
         embeddings[image_name] = response.embeddings[0].values
         print(f"Embedded: {image_name}")
         time.sleep(4)
-        #save the embeddings to a json file
-        with open("embeddings.json", "w", encoding="utf-8") as f:
-            json.dump(
-                {name: list(vector) for name, vector in embeddings.items()}, #converts embeddings to lists for json serialization
-                f
-            )
-            print(f"Saved embedding for {image_name} to embeddings.json")
+    
+    #save all embeddings to json file once
+    with open("embeddings.json", "w", encoding="utf-8") as f:
+        json.dump(
+            {name: list(vector) for name, vector in embeddings.items()}, #converts embeddings to lists for json serialization
+            f
+        )
+        print(f"Saved all embeddings to embeddings.json")
 
     print("Done!")
     print(f"Total embedded: {len(embeddings)}")
@@ -41,3 +41,4 @@ def embed():
 
 
     print("Embeddings saved!")
+    

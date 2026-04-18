@@ -3,7 +3,7 @@ from query import query
 from extract import extractor
 from pdf_to_image import pdf_to_image
 from embed import embed
-from store import store, load_collection
+from store import store
 
 st.title("Study Notes Tutor")
 if "history" not in st.session_state:
@@ -13,7 +13,7 @@ question = st.text_input("Ask a question about your study notes:")
 if st.button("Ask"):
     if question.strip() != "":
         history = ""
-        for item in st.session_state["history"][-5:]: #include last 5 interactions in the history
+        for item in st.session_state["history"][-3:]: #include last 3 interactions in the history
             history += f"User: {item['question']}\nAnswer: {item['answer']}\n\n"
         with st.spinner("Thinking..."):
             answer = query(question, history)
@@ -33,10 +33,16 @@ with st.sidebar:
     st.title("Train AI from your PDF Notes")
     folder_path = st.text_input("Enter the path to your PDF file:") #streamlit doesn't support folder upload, so we will use file uploader for now. User can upload one pdf at a time.
     subject = st.text_input("Enter the subject of your notes (e.g. Math, Physics):(It's crucial!)")
+    authentication_box = st.checkbox("Does your PDF require password authentication?", value=False)
+    if authentication_box:
+        password = st.text_input("Enter the PDF password:", type="password")
+    else:
+        password = None
+        
     if st.button("Extract"):
         if folder_path is not None:
             with st.spinner("Extracting text from pdf..."):
-                pdf_to_image(folder_path) #convert pdf to images
+                pdf_to_image(folder_path, password) #convert pdf to images
             with st.spinner("Extracting text from images..."):
                 extractor() #extract text from images
             with st.spinner("Embedding text into vector database..."):

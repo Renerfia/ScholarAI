@@ -75,10 +75,9 @@ Ask in **Bengali or English**. Get answers with **full LaTeX math rendering**. I
 **1.** Create a `.env` file in the project root:
 ```
 GEMINI_API_KEY=your_api_key_here
-OPENROUTER_API_KEY=your_api_key_here
 ```
 
-**2.** Get your free Gemini API key and Openrouter API key from: https://aistudio.google.com/apikey and https://openrouter.ai/workspaces/default/keys
+**2.** Get your free Gemini API key from: https://aistudio.google.com/apikey
 
 **3.** Create and activate a virtual environment:
 ```bash
@@ -162,7 +161,7 @@ Licensed under the Apache License, Version 2.0
 
 <div align="center">
 
-*Built with obsession. Powered by Gemini and Openrouter. Forged in Python.*
+*Built with obsession. Powered by Gemini. Forged in Python.*
 
 ⭐ Star this repo if it helped you. It was made for educational purpose
 

@@ -1,56 +1,109 @@
+# This module handles querying the vector database and generating responses using AI models
+
+# Import necessary libraries
 import google.genai as genai
 import chromadb
 import os 
 from dotenv import load_dotenv
+from groq import Groq
 load_dotenv()
+from pathlib import Path
 
-def query(question,history):
+# Define the main query function
+def query(question, history):
+    # Load API keys from environment variables
     API_KEY = os.getenv("GEMINI_API_KEY")
-    client_db = chromadb.PersistentClient(path="data\\vector_db")
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+    
+    # Initialize ChromaDB client for vector database
+    client_db = chromadb.PersistentClient(path=str(Path("data") / "vector_db"))
+    # Get or create the collection for notes
     collection = client_db.get_or_create_collection("notes")
-    model = "gemini-2.5-flash-lite"
-
+    
+    # Initialize Gemini AI client
     client_ai = genai.Client(api_key=API_KEY)
+    # Initialize Groq client for LLM
+    groq_client = Groq(api_key=GROQ_API_KEY)
+    
+    # Translate the question to Bengali using Groq
+    translation_response = groq_client.chat.completions.create(
+    model="llama-3.3-70b-versatile",
+    messages=[
+        {
+            "role": "user",
+            "content": f"Translate this to proper Bengali script only, no explanation: {question}"
+        }
+    ],
+        max_tokens=200
+    )
+    
+    # Extract the translated question
+    translated_question = translation_response.choices[0].message.content
 
-    #question = "নোটগুলো থেকে আমাকে কিছু গুরুত্বপূর্ণ অনুশীলন দিন।" #test by asking question
-
-    embedding_model ="gemini-embedding-001"
+    # Define the embedding model
+    embedding_model = "gemini-embedding-001"
+    # Generate embedding for the translated question
     question_embedding = client_ai.models.embed_content(
         model=embedding_model,
-        contents=question) #it returns a vector
-
-    embedded_question = question_embedding.embeddings[0].values
-
-    query_results = collection.query(
-        query_embeddings=[embedded_question],
-        n_results=10
+        contents=translated_question
     )
 
-    print(query_results)
+    # Extract the embedding values
+    embedded_question = question_embedding.embeddings[0].values
 
-    retrieved_texts =f"\n\n".join(query_results['documents'][0]) #retrieves the documents from the query results
-    try:
-        final_response = client_ai.models.generate_content(
-            model=model,
-            contents=f"""
-                Answer the question based on the notes below.
-                your main work is to find question in the notes and send to the user if asked.
-                also solve them if asked.
-                Format any math equations in LaTeX.
-                Always speak in Bangla
+    # Determine number of results to retrieve
+    n_results = min(5, collection.count())
+    # Query the vector database for similar documents
+    query_results = collection.query(
+        query_embeddings=[embedded_question],
+        n_results=n_results
+    )
 
-                Notes:{retrieved_texts}
-
-                History of previous questions and answers:
-                {history}
-
-                User Question: {question}
-            """
-        )
-        return final_response.text
-
+    # Check if any documents were retrieved
+    if not query_results['documents'][0]:
+        # No documents found
+        retrieved_texts = "No relevant notes found."
+    # If documents found, join them
+    else:
+        # Join the retrieved documents
+        retrieved_texts = "\n\n".join(query_results['documents'][0])
+        # Truncate to fit within token limits
+        retrieved_texts = retrieved_texts[:10000]  # Truncate to fit within token limits
     
+    # Try to generate response using Groq
+    try:
+        # Construct the prompt for the LLM
+        prompt = f"""
+            You are an assistant that can only answer from the notes provided below.
+
+            Important instructions:
+            - Only say what is in the notes, do not make anything up
+            - If the notes contain questions, give them exactly as they appear
+            - If the answer is not in the notes, just say "This information is not in the notes"
+            - Always answer in the same language the user asked in (Bengali or English)
+            - Write math equations in LaTeX format
+
+            Notes:
+            {retrieved_texts}
+
+            Conversation History:
+            {history}
+
+            Question: {question}
+
+            Remember: Only answer from the notes above, nothing else.
+            """
+        # Generate the final response
+        final_response = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=3000
+        )
+        
+        # Return the response content
+        return final_response.choices[0].message.content
+    
+    # Handle any exceptions
     except Exception as e:
-        if "503" in str(e) or "UNAVAILABLE" in str(e):
-            import time
-            time.sleep(10) #wait for 5 seconds before retrying
+        # Return error message
+        return f"Error: {str(e)}"
