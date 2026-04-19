@@ -16,6 +16,7 @@
 
 **ScholarAI** is an intelligent **Study Notes Tutor** powered by Google Gemini and a custom RAG (Retrieval-Augmented Generation) pipeline. Upload your PDF notes, and it becomes your personal tutor — understanding your handwriting, diagrams, math, and questions in **Bengali or English**.
 
+![Image Alt Text](./thumbnail_images/image.png)
 ### Key Features
 
 ✅ **Upload PDFs** — Upload your study notes (supports password-protected PDFs)  
@@ -293,8 +294,7 @@ print(answer)
 - Normal for large PDFs. The AI is carefully reading every page.
 - You can stop and resume — already processed images are skipped
 
-**"No embeddings found" error**
-- Run extraction first, then embedding, then storage (in order)
+
 
 ---
 
