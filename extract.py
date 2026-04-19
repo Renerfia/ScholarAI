@@ -10,7 +10,10 @@ load_dotenv()
 def extractor():
     
     model = "models/gemma-4-31b-it"
+    API_KEY = os.getenv("GEMINI_API_KEY")  # ensure we're using the primary key for new requests
+    client = genai.Client(api_key=API_KEY)
 
+    
     folder_path = Path("data/processed_images") #where the images are stored
     extracted_texts_path = Path("data/json_files/extracted_texts.json") #where to save the extracted texts
 
@@ -38,8 +41,7 @@ def extractor():
         try:
             with open(image_path, "rb") as f:
                 image_data = f.read()
-            API_KEY = os.getenv("GEMINI_API_KEY")  # ensure we're using the primary key for new requests
-            client = genai.Client(api_key=API_KEY)
+            
             response = client.models.generate_content(
                 model=model,
                 contents=[
@@ -71,8 +73,6 @@ def extractor():
             if "429" in error_str:
                 print("Rate limited! Waiting 60 seconds...")
                 time.sleep(60)
-                API_KEY = os.getenv("GEMINI_API_KEY_2")  # switch to backup key
-                client = genai.Client(api_key=API_KEY)
                 print("Switched to backup API key, resuming...")
             elif "400" in error_str:
                 print(f"Bad request for {image_path.name} — skipping")
