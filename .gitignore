@@ -6,8 +6,3 @@ embeddings.json
 extracted_texts.json
 data/vector_db
 data/processed_images
-.vscode
-check_db.py
-debug_pipline.py
-test_data.py
-venv
