@@ -27,14 +27,14 @@ def query(question, history):
     
     # Translate the question to Bengali using Groq
     translation_response = groq_client.chat.completions.create(
-    model="llama-3.3-70b-versatile",
+    model="llama-3.1-8b-instant",
     messages=[
         {
             "role": "user",
             "content": f"Translate this to proper Bengali script only, no explanation: {question}"
         }
     ],
-        max_tokens=200
+        max_tokens=3000
     )
     
     # Extract the translated question
@@ -74,14 +74,15 @@ def query(question, history):
     try:
         # Construct the prompt for the LLM
         prompt = f"""
-            You are an assistant that can only answer from the notes provided below.
+            You are an AI teacher helping a student to learn from their notes. Use that notes as your assets.
 
             Important instructions:
-            - Only say what is in the notes, do not make anything up
-            - If the notes contain questions, give them exactly as they appear
-            - If the answer is not in the notes, just say "This information is not in the notes"
-            - Always answer in the same language the user asked in (Bengali or English)
-            - Write math equations in LaTeX format
+            - Use notes as your information source
+            - Answer the user by using notes. You may need to contruct questions and info from the notes
+            - If user asks for practice questions, create 5-10 questions from the notes and examine their skill.
+            - If student is struggling, break down the concepts into simpler parts and explain with examples.
+            - If student is doing well, create more challenging questions and encourage them to think critically.
+            - After all your teaching methods matter most, so be creative and adaptive to the student's needs.
 
             Notes:
             {retrieved_texts}
@@ -94,14 +95,11 @@ def query(question, history):
             Remember: Only answer from the notes above, nothing else.
             """
         # Generate the final response
-        final_response = groq_client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=3000
-        )
-        
-        # Return the response content
-        return final_response.choices[0].message.content
+        final_response = client_ai.models.generate_content(
+            model="gemma-3-27b-it",
+            contents=prompt
+            )   
+        return final_response.text
     
     # Handle any exceptions
     except Exception as e:

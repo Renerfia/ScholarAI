@@ -9,9 +9,10 @@ load_dotenv()
 
 def extractor():
     
-    model = "gemini-2.5-flash-lite"
+    model = "models/gemma-4-31b-it"
 
-    folder_path = Path("data/processed_images")
+    folder_path = Path("data/processed_images") #where the images are stored
+    extracted_texts_path = Path("data/json_files/extracted_texts.json") #where to save the extracted texts
 
     image_files = [
         f for f in folder_path.iterdir()
@@ -19,8 +20,8 @@ def extractor():
     ]
 
     # load existing progress
-    if Path("extracted_texts.json").exists():
-        with open("extracted_texts.json", "r", encoding="utf-8") as f:
+    if extracted_texts_path.exists():
+        with open(extracted_texts_path, "r", encoding="utf-8") as f:
             extracted_texts = json.load(f)
         print(f"Resuming: {len(extracted_texts)} images already done")
     else:
@@ -51,7 +52,7 @@ def extractor():
                                 }
                             },
                             {
-                                "text": "Extract all text from this image exactly as it appears. It can be Bengali, English or math equations."
+                                "text": "Extract all the question, answers, theories and specially creative question, mcqs from this image. Write the extracted text in the same language as the text in the image, which is likely Bengali. Do not translate it to English. Just extract and write the text as it is in the image."
                             }
                         ]
                     }
@@ -59,10 +60,10 @@ def extractor():
             )
 
             extracted_texts[image_path.name] = response.text
-            print(f"Done: {image_path.name}")
+            print(f"Done: {image_path.name} and it's text is: {response.text[:100]}...")
 
             # autosave after every image
-            with open("extracted_texts.json", "w", encoding="utf-8") as f:
+            with open(extracted_texts_path, "w", encoding="utf-8") as f:
                 json.dump(extracted_texts, f, ensure_ascii=False, indent=2)
 
         except Exception as e:

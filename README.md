@@ -1,4 +1,4 @@
-# ⚡ AI PDF Review Assistant
+# ⚡ ScholarAI
 
 ```
    ___  _     ____  ____  _____     __   __  
@@ -14,7 +14,7 @@
 
 ## 🌸 What is this?
 
-**AI PDF Review Assistant** is an intelligent document analysis system powered by Google Gemini and a custom RAG (Retrieval-Augmented Generation) pipeline. Feed it your PDFs — it reads them, understands them, and answers your questions like a brilliant study partner who never sleeps.
+**ScholarAI** is an intelligent document analysis system powered by Google Gemini and a custom RAG (Retrieval-Augmented Generation) pipeline. Feed it your PDFs — it reads them, understands them, and answers your questions like a brilliant study partner who never sleeps.
 
 Ask in **Bengali or English**. Get answers with **full LaTeX math rendering**. It remembers the conversation. It finds exactly what you need.
 
