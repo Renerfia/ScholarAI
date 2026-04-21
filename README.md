@@ -1,4 +1,4 @@
-# ⚡ AI PDF Review Assistant
+# ⚡ ScholarAI
 
 ```
    ___  _     ____  ____  _____     __   __  
@@ -14,7 +14,7 @@
 
 ## 🌸 What is this?
 
-**AI PDF Review Assistant** is an intelligent document analysis system powered by Google Gemini and a custom RAG (Retrieval-Augmented Generation) pipeline. Feed it your PDFs — it reads them, understands them, and answers your questions like a brilliant study partner who never sleeps.
+**ScholarAI** is an intelligent document analysis system powered by Google Gemini and a custom RAG (Retrieval-Augmented Generation) pipeline. Feed it your PDFs — it reads them, understands them, and answers your questions like a brilliant study partner who never sleeps.
 
 Ask in **Bengali or English**. Get answers with **full LaTeX math rendering**. It remembers the conversation. It finds exactly what you need.
 
@@ -75,11 +75,10 @@ Ask in **Bengali or English**. Get answers with **full LaTeX math rendering**. I
 **1.** Create a `.env` file in the project root:
 ```
 GEMINI_API_KEY=your_api_key_here
-OPENROUTER_API_KEY=your_api_key_here
+
 ```
 
-**2.** Get your free Gemini API key and Openrouter API key from: https://aistudio.google.com/apikey and https://openrouter.ai/workspaces/default/keys
-
+**2.** Get your free Gemini API key and Openrouter API key from: https://aistudio.google.com/apikey 
 **3.** Create and activate a virtual environment:
 ```bash
 # Windows
@@ -107,6 +106,7 @@ streamlit run app.py
 ---
 
 ## 📁 Project Structure
+
 When you click the "Extract" button, the program captures every image from every page of the PDF file and sends them to the AI model. This process occurs gradually.
 
 Next, the AI model analyzes the images and generates a detailed description of each page's content. After that, these text descriptions are converted into vectors and stored in a vector database located in the data folder (within the app's local directory).
@@ -115,25 +115,23 @@ When you ask a question, the program converts your query into a vector and ident
 
 Finally, the program sends the retrieved_text, your original question, and the conversation history to the main Gemini Model. The model analyzes this context and provides an accurate answer.
 
+Note: This project runs on open source Google's Gemma 4 model for extracting text from PDF. You can change the model in `extract.py` → line 12
+
 ```
-
-
-ai-pdf-review-assistant/
-│
-├── app.py               # Streamlit UI
-├── extract.py           # Image → text extraction via Gemini
-├── embed.py             # Text → vector embeddings
-├── store.py             # Store vectors in ChromaDB
-├── query.py             # Question answering pipeline
+ScholarAI/
+├── app.py                  # Main app
+├── extract.py              # Extract text from PDFs
+├── embed.py                # Create embeddings
+├── store.py                # Store in database
+├── query.py                # Answer questions
+├── requirements.txt        # Dependencies
+├── .env                    # API key
 │
 ├── data/
-│   └── vector_db/       # ChromaDB persistent storage
+│   ├── vector_db/          # ChromaDB storage
+│   └── json_files/         # Extracted text & embeddings
 │
-├── extracted_texts.json
-├── embeddings.json
-├── .env                 # Your API key goes here
-├── requirements.txt
-└── README.md
+└── thumbnail_images/       # Preview images
 ```
 
 ---
